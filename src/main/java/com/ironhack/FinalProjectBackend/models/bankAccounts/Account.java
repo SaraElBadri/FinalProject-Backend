@@ -1,16 +1,17 @@
-package com.ironhack.FinalProjectBackend.models;
+package com.ironhack.FinalProjectBackend.models.bankAccounts;
 
 
+import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
 import com.ironhack.FinalProjectBackend.models.enums.Status;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+
 @Entity
+@Inheritance (strategy = InheritanceType.JOINED)
 public class Account {
 
     @Id
@@ -19,22 +20,38 @@ public class Account {
 
     private BigDecimal balance;
 
-    private String primaryOwner;
-    private String secondaryOwner;
+    @ManyToOne
+    @JoinColumn (name = "primary_owner")
+    private AccountHolder primaryOwner;
+
+    @ManyToOne
+    @JoinColumn (name = "secondary_owner")
+    private AccountHolder secondaryOwner;
 
     private final BigDecimal penaltyFee = BigDecimal.valueOf(40);
 
-    private LocalDate creationDate;
 
+    @NotNull
+    private LocalDate creationDate = LocalDate.now();
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public Account() {
     }
 
-    public Account(BigDecimal balance, String primaryOwner, LocalDate creationDate) {
+    public Account(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate, Status status) {
         setBalance(balance);
         setPrimaryOwner(primaryOwner);
+        setSecondaryOwner(secondaryOwner);
         setCreationDate(creationDate);
+        setStatus(status);
+    }
+
+    public Account(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate) {
+    }
+
+    public Account(AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate) {
     }
 
     public Long getAccountId() {
@@ -53,19 +70,19 @@ public class Account {
         this.balance = balance;
     }
 
-    public String getPrimaryOwner() {
+    public AccountHolder getPrimaryOwner() {
         return primaryOwner;
     }
 
-    public void setPrimaryOwner(String primaryOwner) {
+    public void setPrimaryOwner(AccountHolder primaryOwner) {
         this.primaryOwner = primaryOwner;
     }
 
-    public String getSecondaryOwner() {
+    public AccountHolder getSecondaryOwner() {
         return secondaryOwner;
     }
 
-    public void setSecondaryOwner(String secondaryOwner) {
+    public void setSecondaryOwner(AccountHolder secondaryOwner) {
         this.secondaryOwner = secondaryOwner;
     }
 

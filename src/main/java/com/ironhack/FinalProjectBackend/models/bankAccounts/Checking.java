@@ -1,7 +1,8 @@
 package com.ironhack.FinalProjectBackend.models.bankAccounts;
 
 
-import com.ironhack.FinalProjectBackend.models.Account;
+import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
+import com.ironhack.FinalProjectBackend.models.enums.Status;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
@@ -22,8 +23,8 @@ public class Checking extends Account {
     public Checking() {
     }
 
-    public Checking(BigDecimal balance, String primaryOwner, LocalDate creationDate, String secretKey) {
-        super(balance, primaryOwner, creationDate);
+    public Checking(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate, Status status, String secretKey) {
+        super(balance, primaryOwner, secondaryOwner,  creationDate, status);
         this.secretKey = secretKey;
     }
 
