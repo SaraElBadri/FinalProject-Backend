@@ -66,11 +66,6 @@ public class CreditCard extends Account {
 
     //Add interest per month
     public void addInterest(){
-//        if(Period.between(lastInterest, LocalDate.now()).getMonths() >= 1){
-//            setBalance(getBalance().multiply(getInterestRate().divide(BigDecimal.valueOf(12))
-//                    .multiply(BigDecimal.valueOf(Period.between(lastInterest, LocalDate.now()).getMonths())).add(getBalance())));
-//            lastInterest.plusMonths(Period.between(lastInterest, LocalDate.now()).getMonths());
-//        }
 
         if (LocalDate.now().getMonthValue() > getLastInterest().getMonthValue() && LocalDate.now().getYear() >= getLastInterest().getYear()) {
             for (int i = LocalDate.now().getMonthValue(); i > getLastInterest().getMonthValue() ; i--) {

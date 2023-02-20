@@ -87,12 +87,7 @@ public class Savings  extends Account {
     //Add interest yearly
 
     public void addInterest() {
-//        if (Period.between(lastInterest, LocalDate.now()).getYears() >= 1) {
-//            setBalance(getBalance().multiply(getInterestRate())
-//                    .multiply(BigDecimal.valueOf(Period.between(lastInterest, LocalDate.now()).getYears())).add(getBalance()));
-//            lastInterest.plusYears(Period.between(lastInterest, LocalDate.now()).getYears());
-//
-//        }
+
 
         if (LocalDate.now().getYear() > this.lastInterest.getYear()) {
             for (int i = LocalDate.now().getYear(); i > this.getLastInterest().getYear() ; i--) {
