@@ -81,7 +81,7 @@ public class SecurityConfig {
                 .requestMatchers(GET, "/api/users").hasAnyAuthority("ROLE_USER")
                 .requestMatchers(POST, "/api/users").hasAnyAuthority("ROLE_ADMIN")
                 .requestMatchers(PUT, "/transfer/**").hasAnyAuthority("ROLE_USER")
-                .requestMatchers(GET, "/transfer/**").hasAnyAuthority("ROLE_USER")
+                .requestMatchers(GET, "/balance/{accountId}").hasAnyAuthority("ROLE_USER")
                 .requestMatchers(POST, "/new-checking").hasAnyAuthority("ROLE_ADMIN")
                 .requestMatchers(POST, "/new-savings").hasAnyAuthority("ROLE_ADMIN")
                 .requestMatchers(POST, "/new-creditcard").hasAnyAuthority("ROLE_ADMIN")
