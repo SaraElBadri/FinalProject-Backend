@@ -41,18 +41,14 @@ public class Account {
     }
 
     public Account(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate, Status status) {
-        setBalance(balance);
+        this.balance = balance;
         setPrimaryOwner(primaryOwner);
         setSecondaryOwner(secondaryOwner);
         setCreationDate(creationDate);
         setStatus(status);
     }
 
-    public Account(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate) {
-    }
 
-    public Account(AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate) {
-    }
 
     public Long getAccountId() {
         return accountId;
@@ -104,5 +100,18 @@ public class Account {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "accountId=" + accountId +
+                ", balance=" + balance +
+                ", primaryOwner=" + primaryOwner +
+                ", secondaryOwner=" + secondaryOwner +
+                ", penaltyFee=" + penaltyFee +
+                ", creationDate=" + creationDate +
+                ", status=" + status +
+                '}';
     }
 }

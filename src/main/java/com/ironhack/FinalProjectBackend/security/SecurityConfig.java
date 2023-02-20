@@ -80,6 +80,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/login/**").permitAll()
                 .requestMatchers(GET, "/api/users").hasAnyAuthority("ROLE_USER")
                 .requestMatchers(POST, "/api/users").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(PUT, "/transfer/**").hasAnyAuthority("ROLE_USER")
+                .requestMatchers(GET, "/transfer/**").hasAnyAuthority("ROLE_USER")
+                .requestMatchers(POST, "/new-checking").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(POST, "/new-savings").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(POST, "/new-creditcard").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(GET, "/balance/**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(PATCH, "/balance/**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(DELETE, "/delete/**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(POST, "/create**").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers(POST, "/transfer-send/**").hasAnyAuthority("ROLE_THIRDPARTY")
+                .requestMatchers(POST, "/transfer-receive/**").hasAnyAuthority("ROLE_THIRDPARTY")
+
                 .anyRequest().permitAll());
         // add the custom authentication filter to the http security object
         http.addFilter(customAuthenticationFilter);

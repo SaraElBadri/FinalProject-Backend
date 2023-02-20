@@ -34,14 +34,14 @@ public class Savings  extends Account {
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate lastInterest = getCreationDate();
+    private LocalDate lastInterest = LocalDate.now();
 
     public Savings() {
     }
 
     public Savings(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner,  LocalDate creationDate, Status status, BigDecimal interestRate, BigDecimal minimumBalance, String secretKey ) {
         super(balance, primaryOwner, secondaryOwner, creationDate, status);
-        setInterestRate(interestRate);
+        this.interestRate = interestRate;
         setMinimumBalance(minimumBalance);
         setSecretKey(secretKey);
     }
@@ -94,7 +94,7 @@ public class Savings  extends Account {
 //
 //        }
 
-        if (LocalDate.now().getYear() > this.getLastInterest().getYear()) {
+        if (LocalDate.now().getYear() > this.lastInterest.getYear()) {
             for (int i = LocalDate.now().getYear(); i > this.getLastInterest().getYear() ; i--) {
                 this.setBalance(this.getBalance().multiply(interestRate.add(BigDecimal.valueOf(1))));
             }

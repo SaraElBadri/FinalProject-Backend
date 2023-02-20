@@ -2,6 +2,11 @@ package com.ironhack.FinalProjectBackend.controllers;
 
 
 import com.ironhack.FinalProjectBackend.dtos.AccountDTO;
+import com.ironhack.FinalProjectBackend.dtos.UserDTO;
+import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
+import com.ironhack.FinalProjectBackend.models.User.Admin;
+import com.ironhack.FinalProjectBackend.models.User.ThirdParty;
+import com.ironhack.FinalProjectBackend.models.User.User;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.Account;
 import com.ironhack.FinalProjectBackend.services.impl.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +46,9 @@ public class AdminController {
         return adminService.accessBalance(accountId);
     }
 
-    @PatchMapping("/balance/modify/{accountId}")
+    @PatchMapping("/balance/modify")
     @ResponseStatus(HttpStatus.OK)
-    public BigDecimal modifyBalance ( @PathVariable Long accountId, @RequestParam BigDecimal newBalance){
+    public BigDecimal modifyBalance ( @RequestParam Long accountId, @RequestParam BigDecimal newBalance){
         return adminService.modifyBalance(accountId, newBalance);
     }
 
@@ -53,7 +58,23 @@ public class AdminController {
         adminService.deleteAccount(accountId);
     }
 
+    @PostMapping ("/create-admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Admin createAdmin(@RequestBody UserDTO admin){
+        return adminService.createAdmin(admin);
+    }
 
+    @PostMapping ("/create-accountholder")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountHolder createAccountHolder(@RequestBody UserDTO accountHolder){
+        return adminService.createAccountHolder(accountHolder);
+    }
+
+    @PostMapping("/create-thirdparty")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ThirdParty createThirdParty(@RequestBody UserDTO thirdParty){
+        return adminService.createThirdParty(thirdParty);
+    }
 
 
 }

@@ -29,6 +29,21 @@ public class AccountDTO {
 
     private Status status;
 
+    public AccountDTO(BigDecimal balance, Long primaryOwner,
+                      Long secondaryOwner, LocalDate creationDate, BigDecimal minimumBalance, BigDecimal monthlyMaintenanceFee, String secretKey, BigDecimal penaltyFee, BigDecimal creditLimit, BigDecimal interestRate, Status status) {
+        this.balance = balance;
+        this.primaryOwner = primaryOwner;
+        this.secondaryOwner = secondaryOwner;
+        this.creationDate = creationDate;
+        this.minimumBalance = minimumBalance;
+        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
+        this.secretKey = secretKey;
+        this.penaltyFee = penaltyFee;
+        this.creditLimit = creditLimit;
+        this.interestRate = interestRate;
+        this.status = status;
+    }
+
     public BigDecimal getBalance() {
         return balance;
     }

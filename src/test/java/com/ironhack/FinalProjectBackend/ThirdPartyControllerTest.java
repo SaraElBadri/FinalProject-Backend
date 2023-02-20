@@ -2,6 +2,7 @@ package com.ironhack.FinalProjectBackend;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
 import com.ironhack.FinalProjectBackend.models.User.Address;
 import com.ironhack.FinalProjectBackend.models.User.ThirdParty;
@@ -43,7 +44,7 @@ public class ThirdPartyControllerTest {
 
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper= new ObjectMapper().registerModule(new JavaTimeModule());;
 
     @Autowired
     ThirdPartyRepository thirdPartyRepository;

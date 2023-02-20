@@ -17,4 +17,12 @@ public class ThirdParty extends User{
         super( name, username, password);
         this.hashedKey = hashedKey;
     }
+
+    public String getHashedKey() {
+        return hashedKey;
+    }
+
+    public void setHashedKey(String hashedKey) {
+        this.hashedKey = hashedKey;
+    }
 }

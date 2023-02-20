@@ -82,6 +82,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
      */
     @Override
     public User saveUser(User user) {
+        System.out.println("AQUIIIIIIIIIII   " + user.getPassword() + user.getUsername());
         log.info("Saving new user {} to the database", user.getName());
         // Encode the user's password for security before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -144,13 +145,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         return userRepository.findAll();
     }
 
-    //Create admin user
 
-    public Admin createAdmin(UserDTO admin){
-        Admin newAdmin = adminRepository.save(new Admin(admin.getName(), admin.getUsername(), passwordEncoder.encode(admin.getPassword())));
-        //añadir aquí el rol de admin//
-        return newAdmin;
-    }
 
 
 }

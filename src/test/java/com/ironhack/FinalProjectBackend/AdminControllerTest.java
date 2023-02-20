@@ -5,25 +5,34 @@ package com.ironhack.FinalProjectBackend;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ironhack.FinalProjectBackend.dtos.AccountDTO;
+import com.ironhack.FinalProjectBackend.dtos.UserDTO;
 import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
 import com.ironhack.FinalProjectBackend.models.User.Address;
 
+import com.ironhack.FinalProjectBackend.models.User.Admin;
+import com.ironhack.FinalProjectBackend.models.User.User;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.Checking;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.CreditCard;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.Savings;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.StudentChecking;
 
+import com.ironhack.FinalProjectBackend.models.enums.Status;
 import com.ironhack.FinalProjectBackend.repositories.bankAccountsRepositories.*;
 import com.ironhack.FinalProjectBackend.repositories.userRepositories.AccountHolderRepository;
 import com.ironhack.FinalProjectBackend.repositories.userRepositories.AdminRepository;
 import com.ironhack.FinalProjectBackend.repositories.userRepositories.RoleRepository;
 
+import com.ironhack.FinalProjectBackend.repositories.userRepositories.UserRepository;
+import com.ironhack.FinalProjectBackend.services.impl.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,7 +67,7 @@ public class AdminControllerTest {
 
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());;
     @Autowired
     private SavingsRepository savingsRepository;
     @Autowired
@@ -72,59 +81,46 @@ public class AdminControllerTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+    AccountHolder accountHolder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setup(){
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
+        accountHolder = new AccountHolder("Chris Evans", "CaptainAmerica", passwordEncoder.encode("123456"),
                 LocalDate.of(1975, 2, 12),
                 new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
-        AccountHolder accountHolder2 = accountHolderRepository.save(new AccountHolder("Robert Downey", "IronMan", "456789",
-                LocalDate.of(1965, 8, 07),
-                new Address("NYC", "2", "00011"),
-                new Address("NYC", "2", "00011")));
-        AccountHolder accountHolder3 = accountHolderRepository.save(new AccountHolder("Chris Hemsworth", "Thor", "147258",
-                LocalDate.of(1983, 03, 30),
-                new Address("Lluna", "24", "08001"),
-                new Address("Lluna", "24", "08001")));
-        AccountHolder accountHolder4 = accountHolderRepository.save(new AccountHolder("Tom Holland", "SpiderMan", "456789",
-                LocalDate.of(1999, 02, 27),
-                new Address("Lluna", "24", "08001"),
-                new Address("Lluna", "24", "08001")));
+                new Address("Dalt", "9", "08980"));
 
-        accountHolderRepository.saveAll(List.of(accountHolder1, accountHolder2, accountHolder3, accountHolder4));
+        accountHolderRepository.save(accountHolder);
 
+        userService.addRoleToUser("CaptainAmerica", "ROLE_USER");
 
-
-        Savings saving = savingsRepository.save(new Savings(new BigDecimal(2000), accountHolder1, accountHolder2, LocalDate.of(2022, 05, 20),
-                ACTIVE, new BigDecimal(0.2), new BigDecimal(100), "AGSD123"));
-        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder3, null, LocalDate.of(2023, 01, 01), ACTIVE, "GHD789"));
-        StudentChecking studentChecking = studentCheckingRepository.save(new StudentChecking(new BigDecimal(1500),accountHolder4, accountHolder2, LocalDate.of(2019, 02, 15), ACTIVE, "ERT456" ));
-        CreditCard creditCard = creditCardRepository.save(new CreditCard(new BigDecimal(1000), accountHolder1,accountHolder2, LocalDate.of(2022, 05,20), new BigDecimal(5000) ,new BigDecimal(0.15)));
-
-        accountRepository.saveAll(List.of(saving, checking, creditCard, studentChecking));
 
     }
 
     @AfterEach
     void tearDown(){
-        accountHolderRepository.deleteAll();
+
+      //  accountHolderRepository.deleteAll();
     }
 
     @Test
     void create_checkingAccount() throws Exception {
 
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
-                LocalDate.of(1975, 2, 12),
-                new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
-
-        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder1, null,
-                LocalDate.of(2023, 01, 01), ACTIVE, "GHD789"));
+//
+        AccountDTO checkingDTO = new AccountDTO(new BigDecimal(2000), accountHolder.getId(),
+                null, LocalDate.now(), null,null,
+                "AGSD123", null, null, null, ACTIVE );
 
         //convertir a json
 
-        String body = objectMapper.writeValueAsString(checking);
+        String body = objectMapper.writeValueAsString(checkingDTO);
         MvcResult result = mockMvc.perform(post("/new-checking").content(body)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
 
@@ -135,19 +131,16 @@ public class AdminControllerTest {
     @Test
     void create_savingsAccount() throws Exception {
 
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
-                LocalDate.of(1975, 2, 12),
-                new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
-
-        Savings saving = savingsRepository.save(new Savings(new BigDecimal(2000), accountHolder1, accountHolder1, LocalDate.of(2022, 05, 20),
-                ACTIVE, new BigDecimal(0.2), new BigDecimal(100), "AGSD123"));
+        AccountDTO savingsDTO = new AccountDTO(new BigDecimal(2000), accountHolder.getId(),
+                null, LocalDate.now(), new BigDecimal(100),null,
+                "AGSD123", null, null, new BigDecimal(0.2), ACTIVE );
 
         //convertir a json
 
-        String body = objectMapper.writeValueAsString(saving);
+        String body = objectMapper.writeValueAsString(savingsDTO);
         MvcResult result = mockMvc.perform(post("/new-savings").content(body)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+
 
         assertTrue(result.getResponse().getContentAsString().contains("Chris Evans"));
 
@@ -159,21 +152,17 @@ public class AdminControllerTest {
 
     void create_creditCard() throws Exception {
 
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
-                LocalDate.of(1975, 2, 12),
-                new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
-
-        CreditCard creditCard = creditCardRepository.save(new CreditCard(new BigDecimal(1000), accountHolder1, null,
-                LocalDate.of(2022, 05,20), new BigDecimal(5000) ,new BigDecimal(0.15)));
+        AccountDTO creditCardDTO = new AccountDTO(new BigDecimal(2000), accountHolder.getId(),
+                null, LocalDate.now(), null,null,
+                null, null, new BigDecimal(5000), new BigDecimal(0.15), null );
 
         //convertir a json
 
-        String body = objectMapper.writeValueAsString(creditCard);
+        String body = objectMapper.writeValueAsString(creditCardDTO);
         MvcResult result = mockMvc.perform(post( "/new-creditcard").content(body)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("Chris Evans"));
+     assertTrue(result.getResponse().getContentAsString().contains("Chris Evans"));
 
     }
 
@@ -182,47 +171,77 @@ public class AdminControllerTest {
     @Test
 
     void accessBalance_usingAccountId() throws Exception {
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
-                LocalDate.of(1975, 2, 12),
-                new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
 
-        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder1, null,
+
+        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder, null,
                 LocalDate.of(2023, 01, 01), ACTIVE, "GHD789"));
 
         //convertir a json
 
-        String body = objectMapper.writeValueAsString(checking);
 
-        MvcResult result = mockMvc.perform(get("/balance/" + checking.getAccountId())).andExpect(status().isOk()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains(BigDecimal.valueOf(5000).toString()));
+        MvcResult result = mockMvc.perform(get("/balance/?accountId=" + checking.getAccountId())).andExpect(status().isOk()).andReturn();
+
+
+       assertTrue(result.getResponse().getContentAsString().contains(BigDecimal.valueOf(5000).toString()));
 
     }
 
     @Test
     void modifyBalance_usingAccountId() throws Exception {
-        AccountHolder accountHolder1 = accountHolderRepository.save(new AccountHolder("Chris Evans", "CaptainAmerica", "123456",
-                LocalDate.of(1975, 2, 12),
-                new Address("Dalt", "9", "08980"),
-                new Address("Dalt", "9", "08980")));
 
-        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder1, null,
+
+        Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder, null,
                 LocalDate.of(2023, 01, 01), ACTIVE, "GHD789"));
 
         //convertir a json
 
-        String body = objectMapper.writeValueAsString(checking);
-        MvcResult result = mockMvc.perform(patch("/balance/modify/" + checking.getAccountId() + "newBalance=2000")
+
+        MvcResult result = mockMvc.perform(patch("/balance/modify?accountId=" + checking.getAccountId() + "&newBalance=2000")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains(BigDecimal.valueOf(7000).toString()));
+        assertTrue(result.getResponse().getContentAsString().contains(BigDecimal.valueOf(2000).toString()));
     }
 
 
+@Test
+    void createAdmin_user() throws Exception {
+    UserDTO adminDTO = new UserDTO("Gal gadot", "Wonderwoman", "123456");
+    //convertir a json
 
+    String body = objectMapper.writeValueAsString(adminDTO);
+    MvcResult result = mockMvc.perform(post( "/create-admin").content(body)
+            .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+
+    assertTrue(result.getResponse().getContentAsString().contains("Wonderwoman"));
+}
+
+@Test
+    void create_accountHolder() throws Exception {
+    UserDTO accountHolderDTO = new UserDTO("Gal gadot", "Wonderwoman", "123456");
+    //convertir a json
+
+    String body = objectMapper.writeValueAsString(accountHolderDTO);
+    MvcResult result = mockMvc.perform(post( "/create-accountholder").content(body)
+            .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+
+    assertTrue(result.getResponse().getContentAsString().contains("Wonderwoman"));
+}
+
+@Test
+    void create_thirdParty() throws Exception {
+    UserDTO thirdParty = new UserDTO("Gal gadot", "Wonderwoman", "123456");
+    //convertir a json
+
+    String body = objectMapper.writeValueAsString(thirdParty);
+    MvcResult result = mockMvc.perform(post( "/create-thirdparty").content(body)
+            .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated()).andReturn();
+
+    assertTrue(result.getResponse().getContentAsString().contains("Wonderwoman"));
+
+}
 
 
 

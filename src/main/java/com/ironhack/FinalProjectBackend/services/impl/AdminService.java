@@ -2,8 +2,15 @@ package com.ironhack.FinalProjectBackend.services.impl;
 
 
 
+import ch.qos.logback.core.encoder.EchoEncoder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ironhack.FinalProjectBackend.dtos.AccountDTO;
+import com.ironhack.FinalProjectBackend.dtos.UserDTO;
 import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
+import com.ironhack.FinalProjectBackend.models.User.Admin;
+import com.ironhack.FinalProjectBackend.models.User.ThirdParty;
+import com.ironhack.FinalProjectBackend.models.User.User;
 import com.ironhack.FinalProjectBackend.models.bankAccounts.*;
 import com.ironhack.FinalProjectBackend.repositories.bankAccountsRepositories.*;
 import com.ironhack.FinalProjectBackend.repositories.userRepositories.AccountHolderRepository;
@@ -37,6 +44,9 @@ public class AdminService {
     private SavingsRepository savingsRepository;
     @Autowired
     private CreditCardRepository creditCardRepository;
+
+    @Autowired
+    UserService userService;
 
 
     //Checking account creation
@@ -117,7 +127,7 @@ public class AdminService {
             }
             CreditCard creditCard = new CreditCard(newCard.getBalance(), primaryOwner, secondaryOwner,
                     newCard.getCreationDate(), newCard.getCreditLimit(), newCard.getInterestRate());
-
+            System.err.println(primaryOwner);
             return creditCardRepository.save(creditCard);
 
         }
@@ -130,27 +140,26 @@ public class AdminService {
 
     //ONLY ACCESS
     public BigDecimal accessBalance(Long accountId){
-        if (accountRepository.findById(accountId).isPresent()){
+
             Account selectedAcc = accountRepository.findById(accountId).orElseThrow(() ->
                     new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "The account you are looking for doesn't exist in the database"));
             return selectedAcc.getBalance();
-        }
-        throw new IllegalArgumentException("This Account Id doesn't match any account.");
+
     }
 
     //ACCESS AND MODIFY
 
     public BigDecimal modifyBalance(Long accountId, BigDecimal newBalance){
-        if (accountRepository.findById(accountId).isPresent()){
+
             Account selectedAcc = accountRepository.findById(accountId).orElseThrow(() ->
                     new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "The account you are looking for doesn't exist in the database"));
             selectedAcc.setBalance(newBalance);
             accountRepository.save(selectedAcc);
             return selectedAcc.getBalance();
-        }
-        throw new IllegalArgumentException("This Account Id doesn't match any account .");
+
+
     }
 
 
@@ -162,5 +171,31 @@ public class AdminService {
             accountRepository.deleteById(accountId);
         }
         throw new IllegalArgumentException("This Account Id doesn't match any account .");
+    }
+
+    //Create admin user
+
+    public Admin createAdmin(UserDTO admin){
+
+        Admin newAdmin =new Admin(admin.getName(), admin.getUsername(), admin.getPassword());
+        userService.saveUser(newAdmin);
+        userService.addRoleToUser(newAdmin.getUsername(), "ROLE_ADMIN");
+
+        return newAdmin;
+    }
+
+    public AccountHolder createAccountHolder(UserDTO accountHolderDTO){
+        AccountHolder accountholder = new AccountHolder(accountHolderDTO.getName(), accountHolderDTO.getUsername(), accountHolderDTO.getPassword(), LocalDate.now(), null, null);
+        userService.saveUser(accountholder);
+        userService.addRoleToUser(accountholder.getUsername(), "ROLE_USER");
+
+        return accountholder;
+    }
+
+    public ThirdParty createThirdParty(UserDTO thirdPartyDTO){
+        ThirdParty thirdParty = new ThirdParty(thirdPartyDTO.getName(), thirdPartyDTO.getUsername(), thirdPartyDTO.getPassword(), null);
+        userService.saveUser(thirdParty);
+        userService.addRoleToUser(thirdParty.getUsername(), "ROLE_THIRDPARTY");
+        return thirdParty;
     }
 }

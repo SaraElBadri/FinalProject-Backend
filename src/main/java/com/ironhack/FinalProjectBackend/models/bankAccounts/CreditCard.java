@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.ironhack.FinalProjectBackend.models.User.AccountHolder;
+import com.ironhack.FinalProjectBackend.models.enums.Status;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,16 +22,16 @@ public class CreditCard extends Account {
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate lastInterest = getCreationDate();
+    private LocalDate lastInterest = LocalDate.now();
 
     public CreditCard() {
     }
 
     public CreditCard(BigDecimal balance, AccountHolder primaryOwner, AccountHolder secondaryOwner, LocalDate creationDate, BigDecimal creditLimit, BigDecimal interestRate) {
-        super(primaryOwner, secondaryOwner, creationDate);
+        super(balance, primaryOwner, secondaryOwner, creationDate, Status.ACTIVE);
         setCreditLimit(creditLimit);
         setInterestRate(interestRate);
-        setBalance(balance);
+
     }
 
     public BigDecimal getCreditLimit() {
