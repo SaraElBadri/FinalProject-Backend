@@ -104,7 +104,7 @@ public class ThirdPartyControllerTest {
         Checking checking = checkingRepository.save(new Checking(new BigDecimal(5000), accountHolder1, null,
                 LocalDate.of(2023, 01, 01), ACTIVE, "GHD789"));
 
-        ThirdParty thirdParty = thirdPartyRepository.save(new ThirdParty("Tom Holland", "SpiderMan", "123456", ""));
+        ThirdParty thirdParty = thirdPartyRepository.save(new ThirdParty("Tom Holland", "SpiderMan", "123456", "ASDFGHHJ"));
 
         //convertir a json
 
